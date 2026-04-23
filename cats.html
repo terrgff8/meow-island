@@ -135,12 +135,13 @@ footer{background:var(--ink);padding:2.5rem 1.5rem;text-align:center;}
 /* ADMIN LOGIN BTN */
 .admin-login-btn{
   position:fixed;bottom:1.4rem;right:1.6rem;z-index:500;
-  font-size:.65rem;letter-spacing:.18em;color:rgba(242,232,213,.25);
-  background:none;border:none;cursor:pointer;padding:.3rem .5rem;
-  transition:color .2s;
+  font-size:.72rem;letter-spacing:.18em;color:rgba(242,232,213,.7);
+  background:rgba(30,19,10,.45);border:1px solid rgba(242,232,213,.2);
+  cursor:pointer;padding:.35rem .8rem;border-radius:2px;
+  transition:color .2s,background .2s;
   font-family:'Noto Sans TC',sans-serif;
 }
-.admin-login-btn:hover{color:rgba(242,232,213,.6);}
+.admin-login-btn:hover{color:#fff;background:rgba(46,74,107,.7);border-color:rgba(242,232,213,.4);}
 
 /* LOGIN MODAL */
 .login-modal-backdrop{
@@ -310,6 +311,7 @@ function closeLoginModal(){
 function confirmLogin(){
   const val = document.getElementById('loginPwInput').value;
   if(val === getPassword()){
+    sessionStorage.setItem('mi_auth','1');
     window.location.href = './admin.html';
   } else {
     const err = document.getElementById('loginError');

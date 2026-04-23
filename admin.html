@@ -313,23 +313,30 @@ function fromB64(b64){
 }
 
 // ── AUTH ──
+function enterAdmin(){
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('admin-screen').style.display = 'block';
+  sessionStorage.setItem('mi_auth','1');
+  checkToken();
+  loadCatList();
+}
 function doLogin(){
   const pw = document.getElementById('pw-input').value;
   if(pw === getPassword()){
-    document.getElementById('login-screen').style.display = 'none';
-    document.getElementById('admin-screen').style.display = 'block';
-    checkToken();
-    loadCatList();
+    enterAdmin();
   } else {
     document.getElementById('login-error').style.display = 'block';
     document.getElementById('pw-input').value = '';
   }
 }
 function doLogout(){
+  sessionStorage.removeItem('mi_auth');
   document.getElementById('login-screen').style.display = 'flex';
   document.getElementById('admin-screen').style.display = 'none';
   document.getElementById('pw-input').value = '';
 }
+// 前台已驗證：直接進入後台
+if(sessionStorage.getItem('mi_auth') === '1'){ enterAdmin(); }
 
 // ── TABS ──
 function switchTab(id, btn){
