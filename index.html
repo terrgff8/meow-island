@@ -852,143 +852,217 @@ function sendToLine(e) {
 }
 </script>
 
-<!-- ── 8-BIT CAT ── -->
+<!-- ── PIXEL ART CAT ── -->
 <canvas id="cat8bit"></canvas>
 <script>
 (function(){
   const cv=document.getElementById('cat8bit'),cx=cv.getContext('2d');
-  const S=4,FW=16,FH=16;
+  // 24×28 sprite @ 3× scale = 72×84 px displayed
+  const SC=3,FW=24,FH=28;
   cv.style.cssText='position:fixed;bottom:0;left:0;pointer-events:none;z-index:9998;image-rendering:pixelated;image-rendering:crisp-edges;';
-  function rsz(){ cv.width=innerWidth; cv.height=FH*S+4; }
+  function rsz(){ cv.width=innerWidth; cv.height=FH*SC+8; }
   rsz(); addEventListener('resize',rsz);
 
-  // Palette
-  const C={B:'#d86820',D:'#7a2e00',L:'#f0a050',W:'#fff2dc',E:'#3ab840',K:'#ff8888',T:'#cc2020'};
-  let _bx=0,_dir=1;
-  // Draw one pixel block (handles left/right flip)
-  function p(x,y,w,h,col){
-    w=w||1; h=h||1; col=col||C.B;
-    const rx=_dir<0?FW-x-w:x;
-    cx.fillStyle=col;
-    cx.fillRect(_bx+rx*S, 4+y*S, w*S, h*S);
+  // ── PALETTE (18-colour orange tabby) ──
+  const C={
+    A:'#1a0900', // darkest outline
+    B:'#5c2208', // deep shadow
+    C:'#a84012', // dark orange / stripe
+    D:'#c85a18', // mid-dark orange
+    E:'#e07828', // main body
+    F:'#ec9438', // light orange
+    G:'#f4b050', // highlight
+    H:'#fac870', // bright highlight
+    W:'#fff8ec', // cream belly
+    I:'#e8d4a8', // belly tint/shadow
+    J:'#cc3a28', // inner ear
+    K:'#28a845', // eye green
+    L:'#55cc68', // eye light
+    M:'#a8ffbc', // eye specular
+    N:'#100500', // pupil
+    O:'#f06060', // nose pink
+    P:'#c41616', // tongue red
+    Q:'#b03c10', // tabby stripe mark
+  };
+
+  let _bx=0,_dr=1;
+  // Draw a pixel-rect (auto-flips for facing-left)
+  function p(x,y,w,h,c){
+    w=w||1;h=h||1;c=c||C.E;
+    const rx=_dr<0?FW-x-w:x;
+    cx.fillStyle=c;
+    cx.fillRect(_bx+rx*SC,8+y*SC,w*SC,h*SC);
+  }
+
+  // ── SHARED: sitting base (tail + body + head) ──
+  function sitBase(){
+    // Tail
+    p(0,14,2,13,C.B); p(1,13,3,13,C.D); p(2,14,2,11,C.E); p(3,15,1,8,C.F);
+    p(1,26,7,2,C.A);  p(2,26,5,2,C.D);
+    // Body
+    p(4,13,17,14,C.A);
+    p(5,13,15,13,C.D); p(6,14,13,11,C.E); p(7,15,11,9,C.F);
+    // Belly
+    p(7,15,9,9,C.I);   p(8,16,7,7,C.W);
+    // Tabby body stripes
+    p(5,16,2,2,C.Q); p(5,20,2,2,C.Q); p(19,16,2,2,C.Q); p(19,20,2,2,C.Q);
+    // Head
+    p(5,1,14,13,C.A);
+    p(6,1,12,12,C.D); p(7,2,10,10,C.E); p(8,3,8,8,C.F); p(9,3,6,5,C.G);
+    // Ears
+    p(5,0,5,6,C.A);  p(6,0,4,5,C.D); p(7,1,2,4,C.E); p(7,2,2,3,C.J);
+    p(14,0,5,6,C.A); p(15,0,4,5,C.D); p(15,1,2,4,C.E); p(15,2,2,3,C.J);
+    // Nose
+    p(10,10,5,3,C.A); p(11,10,3,2,C.O); p(12,12,1,1,C.A);
+    // Whisker hints
+    p(6,9,3,1,C.H); p(15,9,3,1,C.H);
+  }
+
+  function sitEyes(fr){
+    if(fr===1){ // blink
+      p(8,7,4,1,C.A); p(14,7,4,1,C.A);
+    } else {    // open
+      p(8,6,5,5,C.A);
+      p(9,6,4,4,C.K); p(9,7,3,3,C.L); p(13,6,1,1,C.M); p(10,6,1,4,C.N);
+      p(14,6,5,5,C.A);
+      p(15,6,4,4,C.K); p(15,7,3,3,C.L); p(19,6,1,1,C.M); p(16,6,1,4,C.N);
+    }
+  }
+
+  function sitPaws(){
+    p(5,25,5,4,C.A); p(6,25,4,3,C.D); p(6,26,4,2,C.I);
+    p(6,27,1,1,C.A); p(7,27,1,1,C.A); p(8,27,1,1,C.A);
+    p(14,25,5,4,C.A); p(15,25,4,3,C.D); p(15,26,4,2,C.I);
+    p(15,27,1,1,C.A); p(16,27,1,1,C.A); p(17,27,1,1,C.A);
   }
 
   // ── SPRITES ──
   function dIdle(fr){
-    p(1,6,2,6); p(3,11,4,1);           // tail
-    p(3,3,8,9); p(4,5,6,6,C.W);        // body + belly
-    p(3,0,8,5);                          // head
-    p(3,0,2,2,C.D); p(9,0,2,2,C.D);    // ears
-    p(4,0,1,1,C.K); p(10,0,1,1,C.K);   // inner ear
-    if(fr===1){ p(5,2,2,1,C.D); p(9,2,2,1,C.D); }  // blink
-    else      { p(5,2,2,1,C.E); p(9,2,2,1,C.E); }  // eyes open
-    p(7,3,2,1,C.K);                     // nose
-    p(3,12,3,2); p(8,12,3,2);           // paws
+    sitBase(); sitEyes(fr); sitPaws();
   }
 
   function dWalk(fr){
-    p(0,1,2,4); p(1,0,2,2);             // tail behind
-    p(2,4,10,6); p(3,5,7,4,C.W);        // body + belly
-    p(10,1,6,6);                         // head (right side)
-    p(10,0,2,2,C.D); p(14,0,2,2,C.D);  // ears
-    p(11,0,1,1,C.K); p(15,0,1,1,C.K);
-    p(12,3,2,1,C.E); p(14,4,1,1,C.K);  // eye + nose
-    // 4-frame leg cycle  [frontL, frontR, backL, backR] offsets
-    const lgs=[[0,2,0,2],[2,0,2,0],[0,2,2,0],[2,0,0,2]][fr%4];
-    [[3,10],[5,10],[8,10],[10,10]].forEach((l,i)=>p(l[0],l[1]+lgs[i],2,5-lgs[i]));
+    // Tail
+    p(0,0,3,6,C.B); p(1,0,3,5,C.D); p(1,1,2,4,C.F);
+    // Body
+    p(2,6,19,10,C.A);
+    p(3,6,17,9,C.D); p(4,7,15,7,C.E); p(5,8,12,5,C.F);
+    p(5,8,9,5,C.I);  p(6,9,7,3,C.W);
+    // Tabby stripes on body
+    p(3,8,2,2,C.Q); p(3,12,2,2,C.Q); p(18,8,2,2,C.Q); p(18,12,2,2,C.Q);
+    // Head (right side of body)
+    p(18,1,6,11,C.A);
+    p(19,1,5,10,C.D); p(19,2,4,8,C.E); p(20,2,3,6,C.F); p(20,3,3,4,C.G);
+    // Ears
+    p(18,0,4,5,C.A); p(19,0,3,4,C.D); p(19,1,2,3,C.E); p(20,1,2,3,C.J);
+    p(21,0,3,4,C.A); p(22,0,2,3,C.D); p(22,1,1,2,C.J);
+    // Eye
+    p(19,4,4,4,C.A);
+    p(20,4,3,3,C.K); p(20,5,2,2,C.L); p(23,4,1,1,C.M); p(21,4,1,3,C.N);
+    // Nose
+    p(22,7,2,2,C.A); p(22,7,1,2,C.O);
+    // Legs – 4-frame walk cycle
+    const offs=[[0,3,0,3],[3,0,3,0],[0,3,3,0],[3,0,0,3]][fr%4];
+    [[3,16],[6,16],[10,16],[13,16]].forEach(([lx,ly],i)=>{
+      const o=offs[i], h=10-o;
+      p(lx,   ly+o, 3,h,  C.A);
+      p(lx,   ly+o, 2,h-1,C.D);
+      p(lx,   ly+o, 1,h-2,C.F);   // shin highlight
+      p(lx,   ly+o+h-2, 3,2,C.I); // paw
+      p(lx,   ly+o+h-1, 1,1,C.A); // toe
+      p(lx+1, ly+o+h-1, 1,1,C.A);
+    });
   }
 
   function dScratch(fr){
-    p(1,6,2,6); p(3,11,4,1); p(3,3,8,9); p(4,5,6,6,C.W);
-    p(3,0,8,5); p(3,0,2,2,C.D); p(9,0,2,2,C.D);
-    p(4,0,1,1,C.K); p(10,0,1,1,C.K);
-    p(5,2,2,1,C.E); p(9,2,2,1,C.E); p(7,3,2,1,C.K);
-    p(3,12,3,2); p(8,12,3,2);
-    if(fr===0){ p(10,8,2,6); }                      // leg starting to rise
-    else if(fr===1){ p(10,3,2,5); p(9,2,3,2,C.L); } // paw at ear
-    else           { p(10,6,2,7); }                  // leg coming down
+    sitBase();
+    if(fr===1){ p(8,6,5,5,C.A); p(9,6,4,4,C.K); p(9,7,3,3,C.L); p(13,6,1,1,C.M); p(10,6,1,4,C.N);
+                p(14,6,5,5,C.A); p(15,6,4,4,C.K); p(15,7,3,3,C.L); p(19,6,1,1,C.M); p(16,6,1,4,C.N);
+    } else { sitEyes(0); }
+    // Left paw grounded
+    p(5,25,5,4,C.A); p(6,25,4,3,C.D); p(6,26,4,2,C.I);
+    // Back leg raised toward ear
+    const [lx,ly]   =[[17,18],[18,10],[17,15]][fr]||[17,18];
+    p(lx,ly,3,28-ly,C.A); p(lx,ly,2,27-ly,C.D); p(lx,ly,1,26-ly,C.F);
+    if(fr===1){ p(14,3,4,3,C.D); p(15,3,2,2,C.I); } // paw near ear
   }
 
   function dLick(fr){
-    p(1,6,2,6); p(3,11,4,1); p(3,3,8,9); p(4,5,6,6,C.W);
-    p(3,0,8,5); p(3,0,2,2,C.D); p(9,0,2,2,C.D);
-    p(4,0,1,1,C.K); p(10,0,1,1,C.K);
-    p(5,2,2,1,C.E); p(9,2,2,1,C.E); p(7,3,2,1,C.K);
-    p(3,12,3,2);                                     // left paw grounded
-    const py=[10,5,8][fr]||10;
-    p(9,py,2,14-py);                                 // right paw raised
-    if(fr===1){ p(7,5,2,1,C.T); p(9,5,2,1,C.L); }  // tongue + highlighted paw tip
+    sitBase(); sitEyes(0);
+    p(5,25,5,4,C.A); p(6,25,4,3,C.D); p(6,26,4,2,C.I); // left paw grounded
+    // Right front paw raised
+    const py=[20,12,17][fr]||20;
+    p(15,py,4,28-py,C.A); p(16,py,3,27-py,C.D); p(16,py,2,26-py,C.F);
+    if(fr===1){
+      p(12,11,4,3,C.P); // tongue
+      p(15,py,3,3,C.I); // paw highlight at face
+    }
   }
 
   function dStretch(fr){
-    if(fr===0){                                      // bow: butt up, head down
-      p(0,9,4,4); p(0,8,2,2,C.D);
-      p(3,6,10,4); p(4,7,6,2,C.W);
-      p(11,2,4,7); p(12,1,2,2,C.D);
-      p(1,13,2,3); p(3,13,2,3);
-      p(11,9,2,5); p(13,9,2,5);
-    } else if(fr===1){                               // mid-stretch
-      p(1,7,4,4); p(1,6,2,2,C.D);
-      p(4,5,8,5); p(5,6,5,3,C.W);
-      p(10,3,4,7); p(11,2,2,2,C.D);
-      p(2,11,2,5); p(4,11,2,5);
-      p(10,10,2,5); p(12,10,2,5);
-    } else {                                          // full horizontal stretch
-      p(0,8,3,4); p(0,7,2,2,C.D);
-      p(2,7,11,3); p(3,8,7,1,C.W);
-      p(11,4,4,7); p(12,2,2,2,C.D);
-      p(1,11,2,5); p(3,11,2,5);
-      p(10,11,2,5); p(12,11,2,5);
+    if(fr===0){                         // bow: head low, butt high
+      p(0,13,5,8,C.A); p(1,13,4,7,C.D); p(1,14,3,5,C.E); p(1,12,3,3,C.J);
+      p(4,9,17,8,C.A); p(5,9,15,7,C.D); p(6,10,12,5,C.E); p(7,10,9,3,C.I);
+      p(20,3,4,14,C.A); p(21,3,3,13,C.D); p(21,3,2,3,C.J);
+      [[1,17],[4,17]].forEach(([x,y])=>{ p(x,y,3,10,C.A); p(x,y,2,9,C.D); p(x,y+8,3,2,C.I); });
+      [[19,12],[21,12]].forEach(([x,y])=>{ p(x,y,3,8,C.A); p(x,y,2,7,C.D); p(x,y+6,3,2,C.I); });
+    } else if(fr===1){                  // mid-stretch
+      p(0,10,5,8,C.A); p(1,10,4,7,C.D); p(1,11,3,5,C.E); p(1,10,3,3,C.J);
+      p(4,7,16,9,C.A); p(5,7,14,8,C.D); p(6,8,12,6,C.E); p(7,9,8,4,C.I);
+      p(19,3,4,13,C.A); p(20,3,3,12,C.D); p(20,3,2,3,C.J);
+      [[1,18],[4,18],[18,16],[21,16]].forEach(([x,y])=>{ p(x,y,3,10,C.A); p(x,y,2,9,C.D); p(x,y+8,3,2,C.I); });
+    } else {                            // full flat stretch
+      p(0,11,4,7,C.A); p(1,11,3,6,C.D); p(1,12,2,4,C.E); p(0,10,3,3,C.J);
+      p(3,10,17,6,C.A); p(4,10,15,5,C.D); p(5,11,12,3,C.E); p(6,11,8,2,C.I);
+      p(19,5,4,11,C.A); p(20,5,3,10,C.D); p(20,5,2,3,C.J);
+      [[1,17],[4,17],[18,17],[21,17]].forEach(([x,y])=>{ p(x,y,3,10,C.A); p(x,y,2,9,C.D); p(x,y+8,3,2,C.I); });
     }
   }
 
   function dYawn(fr){
-    p(1,6,2,6); p(3,11,4,1); p(3,3,8,9); p(4,5,6,6,C.W);
-    p(3,0,8,5); p(3,0,2,2,C.D); p(9,0,2,2,C.D);
-    p(4,0,1,1,C.K); p(10,0,1,1,C.K);
-    if(fr===1){ p(5,2,2,1,C.D); p(9,2,2,1,C.D); }  // eyes squint
-    else      { p(5,2,2,1,C.E); p(9,2,2,1,C.E); }
-    p(7,3,1,1,C.K);
-    p(3,12,3,2); p(8,12,3,2);
-    const mh=fr===0?1:fr===1?3:2;
-    p(6,4,4,mh,C.D);                                // open mouth
-    if(fr===1) p(7,5,2,1,C.T);                      // tongue
+    sitBase();
+    // Eyes squint on frame 1
+    if(fr===1){ p(9,8,3,1,C.A); p(15,8,3,1,C.A); }
+    else       { sitEyes(0); }
+    sitPaws();
+    // Mouth open
+    const mh=[2,6,3][fr]||2;
+    p(10,10,5,mh+1,C.A); p(11,10,3,mh,C.N);
+    if(fr===1){ p(11,12,3,3,C.P); } // tongue deep in open mouth
   }
 
   function draw(st,fr,dir,bx){
-    _dir=dir; _bx=Math.round(bx);
+    _dr=dir; _bx=Math.round(bx);
     ({walk:dWalk,idle:dIdle,scratch:dScratch,lick:dLick,stretch:dStretch,yawn:dYawn}[st]||dIdle)(fr);
   }
 
-  // ── STATE MACHINE ──
+  // ── STATE MACHINE (unchanged logic) ──
   const FRAMES={walk:4,idle:2,scratch:3,lick:3,stretch:3,yawn:3};
-  const SPD   ={walk:110,idle:700,scratch:270,lick:300,stretch:390,yawn:370};
+  const SPD   ={walk:105,idle:700,scratch:270,lick:300,stretch:390,yawn:370};
   const POOL  =['scratch','lick','stretch','yawn'];
 
-  const cat={x:160,drawX:160,state:'idle',frame:0,ft:0,dir:1,it:2500+Math.random()*3000};
+  const cat={x:180,drawX:180,state:'idle',frame:0,ft:0,dir:1,it:2500+Math.random()*3000};
   let mx=innerWidth/2, my=-9999;
   addEventListener('mousemove',e=>{ mx=e.clientX; my=e.clientY; });
 
   let prev=0;
   function tick(ts){
     const dt=Math.min(ts-prev,50); prev=ts;
-    const near=my>innerHeight-160;
+    const near=my>innerHeight-180;
     const dx=mx-cat.x;
 
-    // Walk toward mouse when cursor is near bottom
-    if(near && Math.abs(dx)>FW*S*.7 && cat.state!=='walk'){
+    if(near && Math.abs(dx)>FW*SC*.7 && cat.state!=='walk'){
       cat.state='walk'; cat.frame=0; cat.ft=0;
-    } else if(cat.state==='walk' && (!near || Math.abs(dx)<=FW*S*.7)){
+    } else if(cat.state==='walk' && (!near||Math.abs(dx)<=FW*SC*.7)){
       cat.state='idle'; cat.frame=0; cat.ft=0;
     }
     if(cat.state==='walk') cat.dir=dx>0?1:-1;
 
     if(cat.state==='walk'){
-      cat.x+=cat.dir*65*dt/1000;
-      cat.x=Math.max(FW*S/2, Math.min(innerWidth-FW*S/2, cat.x));
+      cat.x+=cat.dir*70*dt/1000;
+      cat.x=Math.max(FW*SC/2, Math.min(innerWidth-FW*SC/2, cat.x));
     }
 
-    // Random idle animations
     if(cat.state==='idle'){
       cat.it-=dt;
       if(cat.it<=0){
@@ -998,7 +1072,6 @@ function sendToLine(e) {
       }
     }
 
-    // Advance animation frame
     cat.ft+=dt;
     if(cat.ft>=(SPD[cat.state]||200)){
       cat.ft=0;
@@ -1008,13 +1081,13 @@ function sendToLine(e) {
       } else if(cat.frame<mf-1){
         cat.frame++;
       } else {
-        cat.state='idle'; cat.frame=0;  // return to idle after anim
+        cat.state='idle'; cat.frame=0;
       }
     }
 
     cat.drawX+=(cat.x-cat.drawX)*.18;
     cx.clearRect(0,0,cv.width,cv.height);
-    draw(cat.state,cat.frame,cat.dir,cat.drawX-FW*S/2);
+    draw(cat.state,cat.frame,cat.dir,cat.drawX-FW*SC/2);
     requestAnimationFrame(tick);
   }
   requestAnimationFrame(tick);
