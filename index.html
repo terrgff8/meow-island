@@ -864,20 +864,20 @@ footer{
         </div>
       </div>
 
-      <form class="booking-form reveal" onsubmit="handleSubmit(event)">
+      <form class="booking-form reveal" onsubmit="sendToLine(event)">
         <div class="f-row">
-          <div class="f-group"><label>主人姓名</label><input type="text" placeholder="王小明"/></div>
-          <div class="f-group"><label>聯絡電話</label><input type="tel" placeholder="09XX-XXX-XXX"/></div>
+          <div class="f-group"><label>主人姓名</label><input id="f-name" type="text" placeholder="王小明"/></div>
+          <div class="f-group"><label>聯絡電話</label><input id="f-tel" type="tel" placeholder="09XX-XXX-XXX"/></div>
         </div>
         <div class="f-row">
-          <div class="f-group"><label>入住日期</label><input type="date"/></div>
-          <div class="f-group"><label>退房日期</label><input type="date"/></div>
+          <div class="f-group"><label>入住日期</label><input id="f-checkin" type="date"/></div>
+          <div class="f-group"><label>退房日期</label><input id="f-checkout" type="date"/></div>
         </div>
         <div class="f-row">
-          <div class="f-group"><label>貓咪姓名</label><input type="text" placeholder="橘子"/></div>
+          <div class="f-group"><label>貓咪姓名</label><input id="f-cat" type="text" placeholder="橘子"/></div>
           <div class="f-group">
             <label>房型選擇</label>
-            <select>
+            <select id="f-room">
               <option value="">請選擇房型</option>
               <option>微光標準房 — NT$800/晚</option>
               <option>島嶼豪華房 — NT$1,200/晚</option>
@@ -887,9 +887,9 @@ footer{
         </div>
         <div class="f-group">
           <label>特殊需求或備註</label>
-          <textarea placeholder="例如：指定飼料品牌、用藥需求、貓咪個性等…"></textarea>
+          <textarea id="f-note" placeholder="例如：指定飼料品牌、用藥需求、貓咪個性等…"></textarea>
         </div>
-        <a href="https://lin.ee/vVLrPIY" target="_blank" rel="noopener" class="btn-submit" style="display:inline-block;text-decoration:none;">透過 LINE 預約</a>
+        <button type="submit" class="btn-submit">透過 LINE 送出預約</button>
       </form>
     </div>
   </div>
@@ -934,12 +934,20 @@ window.addEventListener('scroll', () => {
   });
 }, { passive: true });
 
-// Form
-function handleSubmit(e) {
+// Form → LINE pre-filled message
+function sendToLine(e) {
   e.preventDefault();
-  const btn = e.target.querySelector('.btn-submit');
-  btn.textContent = '✓ 已收到申請，我們將盡快與您聯絡';
-  btn.disabled = true;
+  const name     = document.getElementById('f-name').value.trim()    || '（未填）';
+  const tel      = document.getElementById('f-tel').value.trim()     || '（未填）';
+  const checkin  = document.getElementById('f-checkin').value        || '（未填）';
+  const checkout = document.getElementById('f-checkout').value       || '（未填）';
+  const cat      = document.getElementById('f-cat').value.trim()     || '（未填）';
+  const room     = document.getElementById('f-room').value           || '（未選）';
+  const note     = document.getElementById('f-note').value.trim()    || '無';
+
+  const msg = `【貓嶼微光 預約申請】\n姓名：${name}\n電話：${tel}\n入住：${checkin}\n退房：${checkout}\n貓咪：${cat}\n房型：${room}\n備註：${note}`;
+
+  window.open('https://line.me/R/oaMessage/@418eanye/?text=' + encodeURIComponent(msg), '_blank');
 }
 </script>
 </body>
