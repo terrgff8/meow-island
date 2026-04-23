@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>後台管理 — 貓嶼微光</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700;900&family=Noto+Sans+TC:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --parchment:#f2e8d5;--cream:#faf4ea;--wood-dk:#3d2b1a;--wood-md:#6b4a30;
+  --wood-lt:#a07850;--stone:#c8a87a;--indigo-dk:#253d5e;--indigo:#2e4a6b;
+  --indigo-lt:#4a6e96;--sakura:#e8b4b8;--gold:#c8a030;--ink:#1e130a;
+  --moss:#5a6e4a;--danger:#b04040;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Noto Sans TC',sans-serif;background:var(--cream);color:var(--wood-dk);min-height:100vh;}
+
+/* LOGIN */
+#login-screen{
+  display:flex;align-items:center;justify-content:center;
+  min-height:100vh;background:var(--indigo-dk);
+  padding:1.5rem;
+}
+.login-box{
+  background:var(--parchment);padding:2.5rem 2rem;
+  max-width:380px;width:100%;
+}
+.login-title{font-family:'Noto Serif TC',serif;font-size:1.4rem;font-weight:900;color:var(--wood-dk);letter-spacing:.15em;margin-bottom:.3rem;}
+.login-sub{font-size:.8rem;color:var(--stone);letter-spacing:.1em;margin-bottom:1.8rem;}
+.login-box label{font-size:.7rem;letter-spacing:.25em;color:var(--wood-lt);display:block;margin-bottom:.3rem;}
+.login-box input{
+  width:100%;padding:.65rem .85rem;background:#fff;
+  border:1px solid rgba(139,107,69,.25);font-size:.9rem;
+  font-family:'Noto Sans TC',sans-serif;outline:none;margin-bottom:.9rem;
+  transition:border-color .2s;
+}
+.login-box input:focus{border-color:var(--indigo);}
+.login-box input[type=password]{letter-spacing:.15em;}
+.login-error{font-size:.78rem;color:var(--danger);margin-bottom:.8rem;display:none;}
+.btn-primary{
+  width:100%;padding:.7rem;background:var(--indigo);border:none;
+  color:#fff;font-family:'Noto Serif TC',serif;font-size:.88rem;
+  letter-spacing:.25em;cursor:pointer;transition:background .2s;
+}
+.btn-primary:hover{background:var(--indigo-dk);}
+
+/* ADMIN */
+#admin-screen{display:none;}
+header{
+  background:var(--ink);height:56px;display:flex;align-items:center;
+  justify-content:space-between;padding:0 2rem;
+  border-bottom:1px solid rgba(200,160,48,.2);
+  position:sticky;top:0;z-index:100;
+}
+.header-logo{font-family:'Noto Serif TC',serif;font-size:1rem;color:var(--gold);letter-spacing:.2em;}
+.header-actions{display:flex;gap:.8rem;align-items:center;}
+.btn-sm{
+  padding:.35rem 1.1rem;font-size:.72rem;letter-spacing:.15em;
+  border:none;cursor:pointer;font-family:'Noto Sans TC',sans-serif;
+  transition:opacity .2s;
+}
+.btn-sm:hover{opacity:.82;}
+.btn-secondary{background:rgba(255,255,255,.08);color:rgba(242,232,213,.7);}
+.btn-danger{background:var(--danger);color:#fff;}
+.btn-success{background:var(--moss);color:#fff;}
+.btn-gold{background:var(--gold);color:var(--ink);}
+
+.admin-body{max-width:1100px;margin:0 auto;padding:2.5rem 1.5rem;}
+
+/* TABS */
+.tabs{display:flex;gap:0;border-bottom:2px solid rgba(139,107,69,.15);margin-bottom:2.5rem;}
+.tab-btn{
+  padding:.65rem 1.6rem;font-size:.82rem;letter-spacing:.12em;
+  background:none;border:none;cursor:pointer;color:var(--wood-lt);
+  border-bottom:2px solid transparent;margin-bottom:-2px;
+  transition:color .2s,border-color .2s;
+}
+.tab-btn.active{color:var(--indigo);border-bottom-color:var(--indigo);font-weight:500;}
+
+.tab-panel{display:none;}
+.tab-panel.active{display:block;}
+
+/* ADD FORM */
+.form-card{background:var(--parchment);padding:2rem;border:1px solid rgba(139,107,69,.15);}
+.form-card h2{font-family:'Noto Serif TC',serif;font-size:1.1rem;font-weight:700;color:var(--wood-dk);letter-spacing:.1em;margin-bottom:1.5rem;padding-bottom:.7rem;border-bottom:1px solid rgba(139,107,69,.15);}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+.form-group{display:flex;flex-direction:column;gap:.35rem;}
+.form-group.full{grid-column:1/-1;}
+.form-group label{font-size:.7rem;letter-spacing:.25em;color:var(--wood-lt);}
+.form-group input,.form-group select,.form-group textarea{
+  padding:.6rem .85rem;border:1px solid rgba(139,107,69,.25);
+  background:#fff;font-size:.88rem;font-family:'Noto Sans TC',sans-serif;
+  outline:none;transition:border-color .2s;
+}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--indigo);}
+.form-group textarea{resize:vertical;min-height:100px;}
+.photo-preview{margin-top:.6rem;width:100%;max-height:200px;object-fit:cover;display:none;border:1px solid rgba(139,107,69,.2);}
+.form-hint{font-size:.7rem;color:var(--stone);margin-top:.25rem;}
+.form-actions{margin-top:1.5rem;display:flex;gap:.8rem;align-items:center;}
+.btn-add{
+  padding:.65rem 2.4rem;background:var(--indigo);border:none;
+  color:#fff;font-family:'Noto Serif TC',serif;font-size:.85rem;
+  letter-spacing:.2em;cursor:pointer;transition:background .2s;
+}
+.btn-add:hover{background:var(--indigo-dk);}
+.btn-add:disabled{background:var(--stone);cursor:default;}
+.form-msg{font-size:.8rem;letter-spacing:.1em;}
+.form-msg.ok{color:var(--moss);}
+.form-msg.err{color:var(--danger);}
+
+/* CAT LIST */
+.cat-list{display:flex;flex-direction:column;gap:1rem;}
+.cat-list-item{
+  background:var(--parchment);border:1px solid rgba(139,107,69,.15);
+  display:flex;gap:1.2rem;align-items:flex-start;padding:1.2rem;
+  transition:box-shadow .2s;
+}
+.cat-list-item:hover{box-shadow:0 4px 16px rgba(30,19,10,.08);}
+.cat-list-thumb{
+  width:80px;height:80px;flex-shrink:0;
+  object-fit:cover;object-position:center top;
+}
+.cat-list-thumb-placeholder{
+  width:80px;height:80px;flex-shrink:0;
+  background:var(--indigo);display:flex;align-items:center;justify-content:center;
+  font-size:1.8rem;
+}
+.cat-list-info{flex:1;min-width:0;}
+.cat-list-name{font-family:'Noto Serif TC',serif;font-size:1rem;font-weight:700;color:var(--wood-dk);letter-spacing:.1em;}
+.cat-list-meta{font-size:.78rem;color:var(--wood-lt);margin:.2rem 0 .4rem;}
+.cat-list-story{font-size:.82rem;color:var(--wood-md);line-height:1.75;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:500px;}
+.cat-list-actions{display:flex;gap:.5rem;flex-shrink:0;}
+.btn-del{
+  padding:.4rem .9rem;background:transparent;border:1px solid var(--danger);
+  color:var(--danger);font-size:.72rem;letter-spacing:.12em;cursor:pointer;
+  transition:background .2s,color .2s;
+}
+.btn-del:hover{background:var(--danger);color:#fff;}
+.empty-list{text-align:center;padding:3rem;color:var(--stone);font-size:.88rem;letter-spacing:.1em;}
+
+/* SETTINGS */
+.settings-card{background:var(--parchment);padding:2rem;border:1px solid rgba(139,107,69,.15);margin-bottom:1.2rem;}
+.settings-card h3{font-family:'Noto Serif TC',serif;font-size:.95rem;font-weight:700;color:var(--wood-dk);margin-bottom:1rem;letter-spacing:.1em;}
+.settings-card p{font-size:.82rem;color:var(--wood-md);line-height:1.9;margin-bottom:.8rem;}
+.token-input-row{display:flex;gap:.6rem;align-items:center;}
+.token-input{flex:1;padding:.6rem .85rem;border:1px solid rgba(139,107,69,.25);font-size:.85rem;font-family:'Noto Sans TC',sans-serif;outline:none;background:#fff;}
+.token-status{font-size:.75rem;letter-spacing:.1em;padding:.3rem .8rem;}
+.token-ok{background:rgba(90,110,74,.12);color:var(--moss);}
+.token-missing{background:rgba(176,64,64,.1);color:var(--danger);}
+
+/* LOADING OVERLAY */
+.overlay{display:none;position:fixed;inset:0;background:rgba(30,19,10,.45);z-index:500;align-items:center;justify-content:center;}
+.overlay.show{display:flex;}
+.spinner{width:40px;height:40px;border:3px solid rgba(255,255,255,.2);border-top-color:var(--gold);border-radius:50%;animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+@media(max-width:600px){
+  .form-grid{grid-template-columns:1fr;}
+  .admin-body{padding:1.5rem 1rem;}
+  header{padding:0 1rem;}
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-title">貓嶼微光</div>
+    <div class="login-sub">後台管理系統</div>
+    <label>管理員密碼</label>
+    <input id="pw-input" type="password" placeholder="請輸入密碼" onkeydown="if(event.key==='Enter')doLogin()"/>
+    <div id="login-error" class="login-error">密碼錯誤，請再試一次</div>
+    <button class="btn-primary" onclick="doLogin()">登入</button>
+  </div>
+</div>
+
+<!-- LOADING -->
+<div class="overlay" id="overlay"><div class="spinner"></div></div>
+
+<!-- ADMIN -->
+<div id="admin-screen">
+  <header>
+    <div class="header-logo">貓嶼微光 · 後台</div>
+    <div class="header-actions">
+      <a href="./cats.html" target="_blank" class="btn-sm btn-secondary">查看前台 ↗</a>
+      <button class="btn-sm btn-secondary" onclick="doLogout()">登出</button>
+    </div>
+  </header>
+
+  <div class="admin-body">
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('add',this)">新增貓咪</button>
+      <button class="tab-btn" onclick="switchTab('list',this)">管理貓咪列表</button>
+      <button class="tab-btn" onclick="switchTab('settings',this)">設定</button>
+    </div>
+
+    <!-- TAB: ADD -->
+    <div id="tab-add" class="tab-panel active">
+      <div class="form-card">
+        <h2>新增待認養貓咪</h2>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>貓咪名字 *</label>
+            <input id="f-name" type="text" placeholder="例：橘子"/>
+          </div>
+          <div class="form-group">
+            <label>性別 *</label>
+            <select id="f-gender">
+              <option value="">請選擇</option>
+              <option value="男生">男生 ♂</option>
+              <option value="女生">女生 ♀</option>
+              <option value="未知">未知</option>
+            </select>
+          </div>
+          <div class="form-group full">
+            <label>個性特質</label>
+            <input id="f-personality" type="text" placeholder="例：溫柔愛撒嬌、喜歡與人互動"/>
+          </div>
+          <div class="form-group full">
+            <label>故事介紹</label>
+            <textarea id="f-story" placeholder="牠的背景故事、健康狀況、特殊需求等…"></textarea>
+          </div>
+          <div class="form-group full">
+            <label>照片上傳</label>
+            <input id="f-photo-file" type="file" accept="image/*" onchange="previewPhoto(this)"/>
+            <div class="form-hint">支援 JPG / PNG，建議寬高比 1:1 或 4:3</div>
+            <img id="photo-preview" class="photo-preview" alt="預覽"/>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn-add" id="btn-add" onclick="addCat()">新增貓咪</button>
+          <span id="form-msg" class="form-msg"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB: LIST -->
+    <div id="tab-list" class="tab-panel">
+      <div id="cat-list-container"><div class="empty-list">載入中…</div></div>
+    </div>
+
+    <!-- TAB: SETTINGS -->
+    <div id="tab-settings" class="tab-panel">
+      <div class="settings-card">
+        <h3>GitHub Access Token</h3>
+        <p>後台透過 GitHub API 儲存貓咪資料。請在 <strong>GitHub → Settings → Developer Settings → Personal Access Tokens → Tokens (classic)</strong> 產生一組 Token，勾選 <code>repo</code> 權限。Token 僅存在您的瀏覽器本地，不會上傳至任何伺服器。</p>
+        <div class="token-input-row">
+          <input id="token-input" class="token-input" type="password" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx"/>
+          <button class="btn-sm btn-gold" onclick="saveToken()">儲存</button>
+          <button class="btn-sm btn-secondary" onclick="clearToken()">清除</button>
+        </div>
+        <div style="margin-top:.8rem">
+          <span id="token-status" class="token-status token-missing">尚未設定 Token</span>
+        </div>
+      </div>
+      <div class="settings-card">
+        <h3>管理員密碼</h3>
+        <p>預設密碼：<strong>meow2025</strong><br/>如需更改請修改 admin.html 第 302 行的 <code>ADMIN_PASSWORD</code> 變數。</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── CONFIG ───────────────────────────────────────
+const ADMIN_PASSWORD = 'meow2025';
+const GITHUB_OWNER   = 'terrgff8';
+const GITHUB_REPO    = 'meow-island';
+const CATS_FILE      = 'cats.json';
+const PHOTOS_DIR     = 'cat-photos';
+// ──────────────────────────────────────────────────
+
+function getToken(){ return localStorage.getItem('mi_gh_token') || ''; }
+function overlay(show){ document.getElementById('overlay').classList.toggle('show', show); }
+function setMsg(msg, type){ const el=document.getElementById('form-msg'); el.textContent=msg; el.className='form-msg '+(type||''); }
+
+// ── AUTH ──
+function doLogin(){
+  const pw = document.getElementById('pw-input').value;
+  if(pw === ADMIN_PASSWORD){
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('admin-screen').style.display = 'block';
+    checkToken();
+    loadCatList();
+  } else {
+    document.getElementById('login-error').style.display = 'block';
+    document.getElementById('pw-input').value = '';
+  }
+}
+function doLogout(){
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('admin-screen').style.display = 'none';
+  document.getElementById('pw-input').value = '';
+}
+
+// ── TABS ──
+function switchTab(id, btn){
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  btn.classList.add('active');
+  if(id==='list') loadCatList();
+  if(id==='settings') checkToken();
+}
+
+// ── TOKEN ──
+function checkToken(){
+  const t = getToken();
+  const el = document.getElementById('token-status');
+  if(t){ el.textContent='✓ Token 已設定'; el.className='token-status token-ok'; }
+  else { el.textContent='尚未設定 Token'; el.className='token-status token-missing'; }
+  if(document.getElementById('token-input')) document.getElementById('token-input').value = t ? '••••••••••••••••••••' : '';
+}
+function saveToken(){
+  const val = document.getElementById('token-input').value.trim();
+  if(val && !val.startsWith('•')){ localStorage.setItem('mi_gh_token', val); }
+  checkToken();
+  alert('Token 已儲存！');
+}
+function clearToken(){
+  localStorage.removeItem('mi_gh_token');
+  document.getElementById('token-input').value = '';
+  checkToken();
+}
+
+// ── GITHUB API ──
+async function ghGet(path){
+  const r = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${path}`,{
+    headers:{ Authorization:`token ${getToken()}`, Accept:'application/vnd.github.v3+json' }
+  });
+  if(!r.ok) throw new Error(await r.text());
+  return r.json();
+}
+
+async function ghPut(path, content64, sha, message){
+  const body = { message, content: content64 };
+  if(sha) body.sha = sha;
+  const r = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${path}`,{
+    method:'PUT',
+    headers:{ Authorization:`token ${getToken()}`, Accept:'application/vnd.github.v3+json', 'Content-Type':'application/json' },
+    body: JSON.stringify(body)
+  });
+  if(!r.ok) throw new Error(await r.text());
+  return r.json();
+}
+
+async function getCatsData(){
+  try{
+    const file = await ghGet(CATS_FILE);
+    const json = JSON.parse(atob(file.content.replace(/\n/g,'')));
+    return { cats: json.cats || [], sha: file.sha };
+  } catch(e){
+    return { cats: [], sha: null };
+  }
+}
+
+async function saveCatsData(cats, sha, message){
+  const content = btoa(unescape(encodeURIComponent(JSON.stringify({ cats }, null, 2))));
+  return ghPut(CATS_FILE, content, sha, message);
+}
+
+async function uploadPhoto(file){
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      try {
+        const base64 = e.target.result.split(',')[1];
+        const ext = file.name.split('.').pop().toLowerCase();
+        const filename = `${PHOTOS_DIR}/${Date.now()}.${ext}`;
+        await ghPut(filename, base64, null, `upload: 貓咪照片 ${filename}`);
+        const url = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/main/${filename}`;
+        resolve(url);
+      } catch(err){ reject(err); }
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+// ── PHOTO PREVIEW ──
+function previewPhoto(input){
+  const preview = document.getElementById('photo-preview');
+  if(input.files && input.files[0]){
+    const reader = new FileReader();
+    reader.onload = e => { preview.src = e.target.result; preview.style.display='block'; };
+    reader.readAsDataURL(input.files[0]);
+  }
+}
+
+// ── ADD CAT ──
+async function addCat(){
+  if(!getToken()){ alert('請先在「設定」頁面設定 GitHub Token！'); return; }
+  const name = document.getElementById('f-name').value.trim();
+  const gender = document.getElementById('f-gender').value;
+  if(!name){ setMsg('請輸入貓咪名字','err'); return; }
+  if(!gender){ setMsg('請選擇性別','err'); return; }
+
+  const btn = document.getElementById('btn-add');
+  btn.disabled = true;
+  overlay(true);
+  setMsg('儲存中…','');
+
+  try {
+    // Upload photo if selected
+    let photoUrl = '';
+    const photoFile = document.getElementById('f-photo-file').files[0];
+    if(photoFile){
+      setMsg('上傳照片中…','');
+      photoUrl = await uploadPhoto(photoFile);
+    }
+
+    // Get current data
+    const { cats, sha } = await getCatsData();
+
+    // Add new cat
+    const newCat = {
+      id: Date.now().toString(),
+      name,
+      gender,
+      personality: document.getElementById('f-personality').value.trim(),
+      story: document.getElementById('f-story').value.trim(),
+      photo: photoUrl,
+      date: new Date().toISOString().split('T')[0]
+    };
+    cats.unshift(newCat);
+
+    await saveCatsData(cats, sha, `add: 新增貓咪「${name}」`);
+
+    // Reset form
+    ['f-name','f-personality','f-story'].forEach(id => document.getElementById(id).value='');
+    document.getElementById('f-gender').value = '';
+    document.getElementById('f-photo-file').value = '';
+    document.getElementById('photo-preview').style.display = 'none';
+    setMsg(`✓ 「${name}」已成功新增！`, 'ok');
+
+  } catch(e){
+    console.error(e);
+    setMsg('錯誤：' + (e.message || '請確認 Token 是否正確'), 'err');
+  } finally {
+    btn.disabled = false;
+    overlay(false);
+  }
+}
+
+// ── CAT LIST ──
+async function loadCatList(){
+  const container = document.getElementById('cat-list-container');
+  if(!getToken()){
+    container.innerHTML = '<div class="empty-list">請先在「設定」設定 GitHub Token</div>';
+    return;
+  }
+  container.innerHTML = '<div class="empty-list">載入中…</div>';
+  try {
+    const { cats } = await getCatsData();
+    if(cats.length === 0){
+      container.innerHTML = '<div class="empty-list">目前沒有貓咪資料</div>';
+      return;
+    }
+    const list = document.createElement('div');
+    list.className = 'cat-list';
+    cats.forEach(cat => {
+      const item = document.createElement('div');
+      item.className = 'cat-list-item';
+      item.innerHTML = `
+        ${cat.photo
+          ? `<img class="cat-list-thumb" src="${cat.photo}" alt="${cat.name}" onerror="this.outerHTML='<div class=cat-list-thumb-placeholder>🐱</div>'">`
+          : `<div class="cat-list-thumb-placeholder">🐱</div>`}
+        <div class="cat-list-info">
+          <div class="cat-list-name">${cat.name} <span style="font-size:.7rem;color:var(--stone);letter-spacing:.1em">${cat.gender||''}</span></div>
+          <div class="cat-list-meta">${cat.personality || '個性未填'} · 新增日期：${cat.date||'—'}</div>
+          <div class="cat-list-story">${cat.story || '（無故事介紹）'}</div>
+        </div>
+        <div class="cat-list-actions">
+          <button class="btn-del" onclick="deleteCat('${cat.id}','${cat.name}')">刪除</button>
+        </div>`;
+      list.appendChild(item);
+    });
+    container.innerHTML = '';
+    container.appendChild(list);
+  } catch(e){
+    container.innerHTML = '<div class="empty-list">載入失敗，請確認 Token</div>';
+  }
+}
+
+async function deleteCat(id, name){
+  if(!confirm(`確定要刪除「${name}」嗎？此動作無法復原。`)) return;
+  if(!getToken()){ alert('請先設定 GitHub Token'); return; }
+  overlay(true);
+  try {
+    const { cats, sha } = await getCatsData();
+    const updated = cats.filter(c => c.id !== id);
+    await saveCatsData(updated, sha, `delete: 移除貓咪「${name}」`);
+    await loadCatList();
+  } catch(e){
+    alert('刪除失敗：' + e.message);
+  } finally {
+    overlay(false);
+  }
+}
+
+// Enter key for login
+document.getElementById('pw-input').focus();
+</script>
+</body>
+</html>
