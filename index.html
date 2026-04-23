@@ -514,52 +514,6 @@ footer{
   .f-row{grid-template-columns:1fr;}
 }
 
-/* ── ADMIN LOGIN BTN ── */
-.admin-login-btn{
-  position:fixed;bottom:1.4rem;right:1.6rem;z-index:500;
-  font-size:.72rem;letter-spacing:.18em;color:rgba(242,232,213,.7);
-  background:rgba(30,19,10,.45);border:1px solid rgba(242,232,213,.2);
-  cursor:pointer;padding:.35rem .8rem;border-radius:2px;
-  transition:color .2s,background .2s;
-  font-family:'Noto Sans TC',sans-serif;
-}
-.admin-login-btn:hover{color:#fff;background:rgba(46,74,107,.7);border-color:rgba(242,232,213,.4);}
-
-/* ── LOGIN MODAL ── */
-.login-modal-backdrop{
-  display:none;position:fixed;inset:0;z-index:1000;
-  background:rgba(30,19,10,.7);backdrop-filter:blur(6px);
-  align-items:center;justify-content:center;
-}
-.login-modal-backdrop.open{display:flex;}
-.login-modal{
-  background:var(--parchment);padding:2.5rem 2rem;width:320px;max-width:90vw;
-  border:1px solid rgba(139,107,69,.2);text-align:center;
-}
-.login-modal h3{
-  font-family:'Noto Serif TC',serif;font-size:1rem;letter-spacing:.2em;
-  color:var(--wood-dk);margin-bottom:1.4rem;
-}
-.login-modal input{
-  width:100%;padding:.55rem .9rem;border:1.5px solid rgba(139,107,69,.3);
-  background:#fff;font-size:.9rem;margin-bottom:.8rem;outline:none;
-  font-family:'Noto Sans TC',sans-serif;
-}
-.login-modal input:focus{border-color:var(--indigo);}
-.login-modal-btns{display:flex;gap:.8rem;margin-top:.4rem;}
-.login-modal-btns button{
-  flex:1;padding:.55rem;border:1.5px solid var(--indigo);
-  font-family:'Noto Serif TC',serif;font-size:.78rem;letter-spacing:.15em;cursor:pointer;
-  transition:background .2s,color .2s;
-}
-.login-confirm{background:var(--indigo);color:#fff;}
-.login-confirm:hover{background:var(--indigo-dk);}
-.login-cancel{background:transparent;color:var(--indigo);}
-.login-cancel:hover{background:rgba(46,74,107,.08);}
-.login-error{
-  font-size:.75rem;color:#c0392b;letter-spacing:.05em;
-  min-height:1rem;margin-bottom:.4rem;display:none;
-}
 </style>
 </head>
 <body>
@@ -885,46 +839,5 @@ function sendToLine(e) {
 }
 </script>
 
-<button class="admin-login-btn" onclick="openLoginModal()">後台管理</button>
-
-<div class="login-modal-backdrop" id="loginBackdrop">
-  <div class="login-modal">
-    <h3>後台登入</h3>
-    <input type="password" id="loginPwInput" placeholder="請輸入密碼" onkeydown="if(event.key==='Enter')confirmLogin()"/>
-    <div class="login-error" id="loginError">密碼錯誤，請再試一次</div>
-    <div class="login-modal-btns">
-      <button class="login-cancel" onclick="closeLoginModal()">取消</button>
-      <button class="login-confirm" onclick="confirmLogin()">登入</button>
-    </div>
-  </div>
-</div>
-
-<script>
-const DEFAULT_PW = 'meow2025';
-function getPassword(){ return localStorage.getItem('mi_pw') || DEFAULT_PW; }
-function openLoginModal(){
-  document.getElementById('loginPwInput').value = '';
-  document.getElementById('loginError').style.display = 'none';
-  document.getElementById('loginBackdrop').classList.add('open');
-  setTimeout(()=>document.getElementById('loginPwInput').focus(), 100);
-}
-function closeLoginModal(){
-  document.getElementById('loginBackdrop').classList.remove('open');
-}
-function confirmLogin(){
-  const val = document.getElementById('loginPwInput').value;
-  if(val === getPassword()){
-    sessionStorage.setItem('mi_auth','1');
-    window.location.href = './admin.html';
-  } else {
-    document.getElementById('loginError').style.display = 'block';
-    document.getElementById('loginPwInput').value = '';
-    document.getElementById('loginPwInput').focus();
-  }
-}
-document.getElementById('loginBackdrop').addEventListener('click', function(e){
-  if(e.target === this) closeLoginModal();
-});
-</script>
 </body>
 </html>
