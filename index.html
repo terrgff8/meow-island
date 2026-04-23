@@ -852,5 +852,173 @@ function sendToLine(e) {
 }
 </script>
 
+<!-- ── 8-BIT CAT ── -->
+<canvas id="cat8bit"></canvas>
+<script>
+(function(){
+  const cv=document.getElementById('cat8bit'),cx=cv.getContext('2d');
+  const S=4,FW=16,FH=16;
+  cv.style.cssText='position:fixed;bottom:0;left:0;pointer-events:none;z-index:9998;image-rendering:pixelated;image-rendering:crisp-edges;';
+  function rsz(){ cv.width=innerWidth; cv.height=FH*S+4; }
+  rsz(); addEventListener('resize',rsz);
+
+  // Palette
+  const C={B:'#484860',D:'#1e1e2c',L:'#8888b8',W:'#ddd8c8',E:'#ffc840',K:'#ff8888',T:'#cc2020'};
+  let _bx=0,_dir=1;
+  // Draw one pixel block (handles left/right flip)
+  function p(x,y,w,h,col){
+    w=w||1; h=h||1; col=col||C.B;
+    const rx=_dir<0?FW-x-w:x;
+    cx.fillStyle=col;
+    cx.fillRect(_bx+rx*S, 4+y*S, w*S, h*S);
+  }
+
+  // ── SPRITES ──
+  function dIdle(fr){
+    p(1,6,2,6); p(3,11,4,1);           // tail
+    p(3,3,8,9); p(4,5,6,6,C.W);        // body + belly
+    p(3,0,8,5);                          // head
+    p(3,0,2,2,C.D); p(9,0,2,2,C.D);    // ears
+    p(4,0,1,1,C.K); p(10,0,1,1,C.K);   // inner ear
+    if(fr===1){ p(5,2,2,1,C.D); p(9,2,2,1,C.D); }  // blink
+    else      { p(5,2,2,1,C.E); p(9,2,2,1,C.E); }  // eyes open
+    p(7,3,2,1,C.K);                     // nose
+    p(3,12,3,2); p(8,12,3,2);           // paws
+  }
+
+  function dWalk(fr){
+    p(0,1,2,4); p(1,0,2,2);             // tail behind
+    p(2,4,10,6); p(3,5,7,4,C.W);        // body + belly
+    p(10,1,6,6);                         // head (right side)
+    p(10,0,2,2,C.D); p(14,0,2,2,C.D);  // ears
+    p(11,0,1,1,C.K); p(15,0,1,1,C.K);
+    p(12,3,2,1,C.E); p(14,4,1,1,C.K);  // eye + nose
+    // 4-frame leg cycle  [frontL, frontR, backL, backR] offsets
+    const lgs=[[0,2,0,2],[2,0,2,0],[0,2,2,0],[2,0,0,2]][fr%4];
+    [[3,10],[5,10],[8,10],[10,10]].forEach((l,i)=>p(l[0],l[1]+lgs[i],2,5-lgs[i]));
+  }
+
+  function dScratch(fr){
+    p(1,6,2,6); p(3,11,4,1); p(3,3,8,9); p(4,5,6,6,C.W);
+    p(3,0,8,5); p(3,0,2,2,C.D); p(9,0,2,2,C.D);
+    p(4,0,1,1,C.K); p(10,0,1,1,C.K);
+    p(5,2,2,1,C.E); p(9,2,2,1,C.E); p(7,3,2,1,C.K);
+    p(3,12,3,2); p(8,12,3,2);
+    if(fr===0){ p(10,8,2,6); }                      // leg starting to rise
+    else if(fr===1){ p(10,3,2,5); p(9,2,3,2,C.L); } // paw at ear
+    else           { p(10,6,2,7); }                  // leg coming down
+  }
+
+  function dLick(fr){
+    p(1,6,2,6); p(3,11,4,1); p(3,3,8,9); p(4,5,6,6,C.W);
+    p(3,0,8,5); p(3,0,2,2,C.D); p(9,0,2,2,C.D);
+    p(4,0,1,1,C.K); p(10,0,1,1,C.K);
+    p(5,2,2,1,C.E); p(9,2,2,1,C.E); p(7,3,2,1,C.K);
+    p(3,12,3,2);                                     // left paw grounded
+    const py=[10,5,8][fr]||10;
+    p(9,py,2,14-py);                                 // right paw raised
+    if(fr===1){ p(7,5,2,1,C.T); p(9,5,2,1,C.L); }  // tongue + highlighted paw tip
+  }
+
+  function dStretch(fr){
+    if(fr===0){                                      // bow: butt up, head down
+      p(0,9,4,4); p(0,8,2,2,C.D);
+      p(3,6,10,4); p(4,7,6,2,C.W);
+      p(11,2,4,7); p(12,1,2,2,C.D);
+      p(1,13,2,3); p(3,13,2,3);
+      p(11,9,2,5); p(13,9,2,5);
+    } else if(fr===1){                               // mid-stretch
+      p(1,7,4,4); p(1,6,2,2,C.D);
+      p(4,5,8,5); p(5,6,5,3,C.W);
+      p(10,3,4,7); p(11,2,2,2,C.D);
+      p(2,11,2,5); p(4,11,2,5);
+      p(10,10,2,5); p(12,10,2,5);
+    } else {                                          // full horizontal stretch
+      p(0,8,3,4); p(0,7,2,2,C.D);
+      p(2,7,11,3); p(3,8,7,1,C.W);
+      p(11,4,4,7); p(12,2,2,2,C.D);
+      p(1,11,2,5); p(3,11,2,5);
+      p(10,11,2,5); p(12,11,2,5);
+    }
+  }
+
+  function dYawn(fr){
+    p(1,6,2,6); p(3,11,4,1); p(3,3,8,9); p(4,5,6,6,C.W);
+    p(3,0,8,5); p(3,0,2,2,C.D); p(9,0,2,2,C.D);
+    p(4,0,1,1,C.K); p(10,0,1,1,C.K);
+    if(fr===1){ p(5,2,2,1,C.D); p(9,2,2,1,C.D); }  // eyes squint
+    else      { p(5,2,2,1,C.E); p(9,2,2,1,C.E); }
+    p(7,3,1,1,C.K);
+    p(3,12,3,2); p(8,12,3,2);
+    const mh=fr===0?1:fr===1?3:2;
+    p(6,4,4,mh,C.D);                                // open mouth
+    if(fr===1) p(7,5,2,1,C.T);                      // tongue
+  }
+
+  function draw(st,fr,dir,bx){
+    _dir=dir; _bx=Math.round(bx);
+    ({walk:dWalk,idle:dIdle,scratch:dScratch,lick:dLick,stretch:dStretch,yawn:dYawn}[st]||dIdle)(fr);
+  }
+
+  // ── STATE MACHINE ──
+  const FRAMES={walk:4,idle:2,scratch:3,lick:3,stretch:3,yawn:3};
+  const SPD   ={walk:110,idle:700,scratch:270,lick:300,stretch:390,yawn:370};
+  const POOL  =['scratch','lick','stretch','yawn'];
+
+  const cat={x:160,drawX:160,state:'idle',frame:0,ft:0,dir:1,it:2500+Math.random()*3000};
+  let mx=innerWidth/2, my=-9999;
+  addEventListener('mousemove',e=>{ mx=e.clientX; my=e.clientY; });
+
+  let prev=0;
+  function tick(ts){
+    const dt=Math.min(ts-prev,50); prev=ts;
+    const near=my>innerHeight-160;
+    const dx=mx-cat.x;
+
+    // Walk toward mouse when cursor is near bottom
+    if(near && Math.abs(dx)>FW*S*.7 && cat.state!=='walk'){
+      cat.state='walk'; cat.frame=0; cat.ft=0;
+    } else if(cat.state==='walk' && (!near || Math.abs(dx)<=FW*S*.7)){
+      cat.state='idle'; cat.frame=0; cat.ft=0;
+    }
+    if(cat.state==='walk') cat.dir=dx>0?1:-1;
+
+    if(cat.state==='walk'){
+      cat.x+=cat.dir*65*dt/1000;
+      cat.x=Math.max(FW*S/2, Math.min(innerWidth-FW*S/2, cat.x));
+    }
+
+    // Random idle animations
+    if(cat.state==='idle'){
+      cat.it-=dt;
+      if(cat.it<=0){
+        cat.state=POOL[Math.floor(Math.random()*POOL.length)];
+        cat.frame=0; cat.ft=0;
+        cat.it=4000+Math.random()*5000;
+      }
+    }
+
+    // Advance animation frame
+    cat.ft+=dt;
+    if(cat.ft>=(SPD[cat.state]||200)){
+      cat.ft=0;
+      const mf=FRAMES[cat.state]||2;
+      if(cat.state==='walk'||cat.state==='idle'){
+        cat.frame=(cat.frame+1)%mf;
+      } else if(cat.frame<mf-1){
+        cat.frame++;
+      } else {
+        cat.state='idle'; cat.frame=0;  // return to idle after anim
+      }
+    }
+
+    cat.drawX+=(cat.x-cat.drawX)*.18;
+    cx.clearRect(0,0,cv.width,cv.height);
+    draw(cat.state,cat.frame,cat.dir,cat.drawX-FW*S/2);
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+})();
+</script>
 </body>
 </html>
