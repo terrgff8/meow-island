@@ -419,6 +419,18 @@ a.svc-tag:hover{background:var(--indigo);color:#fff;}
   margin-bottom:.2rem;
 }
 .info-val{font-size:.86rem;color:rgba(242,232,213,.65);line-height:1.8;}
+.map-btn{
+  display:inline-flex;align-items:center;gap:.45rem;
+  margin-top:.55rem;
+  padding:.42rem 1.1rem;
+  border:1px solid rgba(242,232,213,.35);
+  color:rgba(242,232,213,.85);
+  font-size:.75rem;letter-spacing:.18em;
+  font-family:'Noto Serif TC',serif;
+  text-decoration:none;
+  transition:background .2s,color .2s,border-color .2s;
+}
+.map-btn:hover{background:rgba(242,232,213,.1);border-color:rgba(242,232,213,.65);color:#fff;}
 .booking-form{display:flex;flex-direction:column;gap:.9rem;}
 .f-row{display:grid;grid-template-columns:1fr 1fr;gap:.9rem;}
 .f-group{display:flex;flex-direction:column;gap:.35rem;}
@@ -727,6 +739,7 @@ footer{
           <div class="info-body">
             <span class="info-label">地址</span>
             <span class="info-val">台南市永康區東橋一路 181 號</span>
+            <a class="map-btn" href="https://maps.app.goo.gl/hHKQ1hcQAFhJfe3y7" target="_blank" rel="noopener">📍 查看地圖</a>
           </div>
         </div>
         <div class="info-row">
