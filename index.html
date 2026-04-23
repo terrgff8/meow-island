@@ -10,7 +10,6 @@
 /* ── TOKENS ── */
 :root{
   --stone:    #c8a87a;
-  --sand:     #e8d5b4;
   --parchment:#f2e8d5;
   --cream:    #faf4ea;
   --wood-dk:  #3d2b1a;
@@ -20,9 +19,7 @@
   --indigo:   #2e4a6b;
   --indigo-lt:#4a6e96;
   --sakura:   #e8b4b8;
-  --sakura-lt:#f5dde0;
   --moss:     #5a6e4a;
-  --sky:      #aec8d8;
   --gold:     #c8a030;
   --ink:      #1e130a;
 }
@@ -34,27 +31,6 @@ body{
   color:var(--wood-dk);
   line-height:1.8;
   overflow-x:hidden;
-}
-
-/* ── WASHI TEXTURE OVERLAY ── */
-body::before{
-  content:'';
-  position:fixed;
-  inset:0;
-  pointer-events:none;
-  z-index:0;
-  opacity:.025;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
-}
-
-/* ── SEIGAIHA PATTERN HELPER ── */
-.pattern-seigaiha{
-  background-color:var(--parchment);
-  background-image:
-    radial-gradient(circle at 50% 110%, transparent 65%, rgba(139,107,69,.12) 65.5%, rgba(139,107,69,.12) 70%, transparent 70.5%),
-    radial-gradient(circle at 0% 60%, transparent 65%, rgba(139,107,69,.08) 65.5%, rgba(139,107,69,.08) 70%, transparent 70.5%),
-    radial-gradient(circle at 100% 60%, transparent 65%, rgba(139,107,69,.08) 65.5%, rgba(139,107,69,.08) 70%, transparent 70.5%);
-  background-size:48px 28px;
 }
 
 /* ── NOREN DIVIDER ── */
@@ -119,14 +95,6 @@ nav{
   align-items:center;justify-content:flex-end;
   overflow:hidden;
   background:linear-gradient(180deg,#8eafc0 0%,#b8c8a0 30%,#d4b87a 60%,#c0946a 80%,#8b6040 100%);
-}
-
-/* Mountain SVG silhouette */
-.hero-mountains{
-  position:absolute;
-  bottom:0;left:0;right:0;
-  height:100%;
-  pointer-events:none;
 }
 
 /* Banner image */
@@ -564,90 +532,7 @@ footer{
 
 <!-- ── HERO ── -->
 <section class="hero" id="top">
-  <!-- Replace src with actual banner path when available -->
   <img class="hero-banner-img" src="./banner.jpg" alt="貓嶼微光 Banner" onerror="this.remove()"/>
-
-  <!-- CSS fallback sky/mountain scene matching banner palette -->
-  <svg class="hero-mountains" viewBox="0 0 1440 800" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
-    <defs>
-      <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color="#8eafc0"/>
-        <stop offset="40%" stop-color="#aec8d8"/>
-        <stop offset="75%" stop-color="#c8d8b0"/>
-        <stop offset="100%" stop-color="#d4b87a"/>
-      </linearGradient>
-      <linearGradient id="mtn1" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color="#7a9888"/>
-        <stop offset="100%" stop-color="#5a7860"/>
-      </linearGradient>
-      <linearGradient id="mtn2" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color="#98a890"/>
-        <stop offset="100%" stop-color="#6a8870"/>
-      </linearGradient>
-      <linearGradient id="street" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color="#c8a870"/>
-        <stop offset="100%" stop-color="#a07850"/>
-      </linearGradient>
-    </defs>
-    <!-- sky -->
-    <rect width="1440" height="800" fill="url(#sky)"/>
-    <!-- fuji-like mountain -->
-    <polygon points="620,120 720,320 520,320" fill="#e8f0e8" opacity=".9"/>
-    <polygon points="620,130 705,310 535,310" fill="#d0e8e0" opacity=".7"/>
-    <!-- back mountain range -->
-    <path d="M0,420 Q180,280 360,360 Q540,440 720,320 Q900,200 1080,340 Q1260,420 1440,380 L1440,800 L0,800Z" fill="url(#mtn2)" opacity=".55"/>
-    <path d="M0,500 Q200,380 400,440 Q600,500 800,400 Q1000,300 1200,430 Q1350,500 1440,460 L1440,800 L0,800Z" fill="url(#mtn1)" opacity=".6"/>
-    <!-- cherry blossom trees -->
-    <g opacity=".6">
-      <rect x="80" y="420" width="10" height="80" fill="#7a5030"/>
-      <circle cx="85" cy="405" r="45" fill="#f0c0c0" opacity=".7"/>
-      <circle cx="60" cy="395" r="30" fill="#f5d0d0" opacity=".55"/>
-      <circle cx="110" cy="398" r="32" fill="#e8b0b0" opacity=".6"/>
-    </g>
-    <g opacity=".5">
-      <rect x="1330" y="400" width="10" height="90" fill="#7a5030"/>
-      <circle cx="1335" cy="385" r="40" fill="#f0c0c0" opacity=".65"/>
-      <circle cx="1360" cy="378" r="28" fill="#f5d0d0" opacity=".5"/>
-    </g>
-    <!-- stone street -->
-    <path d="M0,650 Q360,600 720,620 Q1080,640 1440,600 L1440,800 L0,800Z" fill="url(#street)"/>
-    <!-- building silhouettes -->
-    <rect x="0" y="440" width="220" height="200" fill="#4a3020" opacity=".7"/>
-    <rect x="0" y="380" width="180" height="80" rx="2" fill="#3a2415" opacity=".8"/>
-    <polygon points="0,380 90,320 180,380" fill="#3a2415" opacity=".85"/>
-    <rect x="1220" y="420" width="220" height="220" fill="#4a3020" opacity=".65"/>
-    <rect x="1260" y="360" width="180" height="80" fill="#3a2415" opacity=".75"/>
-    <polygon points="1260,360 1350,300 1440,360" fill="#3a2415" opacity=".8"/>
-    <!-- noren curtain hint -->
-    <rect x="310" y="440" width="180" height="100" fill="#2e4a6b" opacity=".7"/>
-    <line x1="320" y1="440" x2="320" y2="540" stroke="rgba(255,255,255,.12)" stroke-width="2"/>
-    <line x1="350" y1="440" x2="350" y2="540" stroke="rgba(255,255,255,.12)" stroke-width="2"/>
-    <line x1="380" y1="440" x2="380" y2="540" stroke="rgba(255,255,255,.12)" stroke-width="2"/>
-    <line x1="410" y1="440" x2="410" y2="540" stroke="rgba(255,255,255,.12)" stroke-width="2"/>
-    <line x1="440" y1="440" x2="440" y2="540" stroke="rgba(255,255,255,.12)" stroke-width="2"/>
-    <!-- sakura petals scattered -->
-    <g fill="#f0c0c8" opacity=".5">
-      <ellipse cx="300" cy="580" rx="5" ry="3" transform="rotate(-20 300 580)"/>
-      <ellipse cx="650" cy="550" rx="4" ry="2.5" transform="rotate(15 650 550)"/>
-      <ellipse cx="900" cy="570" rx="5" ry="3" transform="rotate(-35 900 570)"/>
-      <ellipse cx="1100" cy="560" rx="4" ry="2.5" transform="rotate(10 1100 560)"/>
-    </g>
-    <!-- cat silhouettes on street -->
-    <g fill="#2a1a0a" opacity=".6">
-      <!-- cat 1 -->
-      <ellipse cx="620" cy="700" rx="22" ry="14"/>
-      <circle cx="620" cy="685" r="11"/>
-      <polygon points="612,676 616,666 620,676" fill="#2a1a0a"/>
-      <polygon points="620,676 624,666 628,676" fill="#2a1a0a"/>
-      <path d="M640,697 Q655,692 652,700" stroke="#2a1a0a" stroke-width="2" fill="none"/>
-      <!-- cat 2 -->
-      <ellipse cx="720" cy="705" rx="20" ry="13"/>
-      <circle cx="720" cy="691" r="10"/>
-      <polygon points="713,683 717,673 721,683" fill="#2a1a0a"/>
-      <polygon points="719,683 723,673 727,683" fill="#2a1a0a"/>
-      <path d="M738,703 Q752,698 749,706" stroke="#2a1a0a" stroke-width="2" fill="none"/>
-    </g>
-  </svg>
 
   <div class="hero-overlay"></div>
   <div class="hero-copy">
